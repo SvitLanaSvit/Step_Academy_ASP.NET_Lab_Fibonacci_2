@@ -1,6 +1,8 @@
-using System;
+using DZ_Fibonacci_WithService_3.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddTransient<FibonacciService>();
+builder.Services.AddTransient<Fibonacci>();
 var app = builder.Build();
 
 app.Use(async (context, next) =>
@@ -13,13 +15,14 @@ app.Use(async (context, next) =>
             "START</h2>");
         await next.Invoke(context);
     }
-    else if(token != "svit")
+    else if (token != "svit")
     {
         context.Response.Headers.ContentType = "text/html; charset=utf-8";
         context.Response.StatusCode = 403;
         await context.Response.WriteAsync("<h2 style='color: red'>The site is not found!</h2>");
     }
 });
+
 app.Run(async context =>
 {
     string? path = context.Request.Path.Value?.ToLower();
@@ -27,15 +30,14 @@ app.Run(async context =>
     if(path == "/fibonacci")
     {
         context.Response.ContentType = "text/html; charset=utf-8";
-        //await context.Response.WriteAsync("<h2 style='color: green'>" +
-        //    "This is a site with calculation index of fibonacci:</h2>"); 
-        if (val != null)
+        if(val != null)
         {
             int index = int.Parse(val);
-            if (index >= 0 && index <= 40)
+            if(index >= 0 && index <= 40)
             {
-                context.Response.Headers.ContentType = "text/html; charset=utf-8";
-                await context.Response.WriteAsync($"<h2>F[{index}] = {Fibonacci(index)}</h2>");
+                FibonacciService? fibonacciService = app.Services.GetService<FibonacciService>();
+                context.Response.ContentType = "text/html; charset=utf-8";
+                await context.Response.WriteAsync($"<h2>F[{index}] = {fibonacciService?.GetValue(index)}</h2>");
             }
             else
             {
@@ -52,17 +54,5 @@ app.Run(async context =>
         await context.Response.WriteAsync($"<h2 style='color: red'>The site {path} is not found!</h2>");
     }
 });
-
-static long Fibonacci(int i)
-{
-    long[] arr = new long[100];
-    arr[0] = 0;
-    arr[1] = 1;
-    for(int j = 2; j < arr.Length; j++)
-    {
-        arr[j] = arr[j - 1] + arr[j - 2];
-    }
-    return arr[i];
-}
 
 app.Run();

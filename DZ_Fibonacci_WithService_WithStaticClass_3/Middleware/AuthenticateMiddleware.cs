@@ -1,9 +1,8 @@
-﻿namespace Lab_Fibonacci_WithStaticClass_2
+﻿namespace DZ_Fibonacci_WithService_WithStaticClass_3.Middleware
 {
     public class AuthenticateMiddleware
     {
         private readonly RequestDelegate next;
-
         public AuthenticateMiddleware(RequestDelegate next)
         {
             this.next = next;
@@ -21,7 +20,7 @@
             }
             else if (token != "svit")
             {
-                context.Response.StatusCode = 403;   
+                context.Response.StatusCode = 403;
             }
         }
     }
